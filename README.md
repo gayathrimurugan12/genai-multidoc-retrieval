@@ -1,52 +1,31 @@
 ## Design and Implementation of a Multidocument Retrieval Agent Using LlamaIndex
-## AIM:
-To design and implement a multidocument retrieval agent using LlamaIndex (formerly known as GPT Index), which extracts and synthesizes information from multiple research articles and to evaluate its performance by testing it with diverse queries, analyzing its ability to deliver concise, relevant, and accurate responses.
 
-## PROBLEM STATEMENT:
-The objective is to create an agent that can handle multiple research articles or documents and retrieve relevant information based on user queries. By leveraging LlamaIndex, we aim to build an efficient retrieval system that can access multiple documents, extract the necessary data, and synthesize it into meaningful responses, improving the speed and accuracy of information retrieval.
+### AIM:
+To design and implement a multidocument retrieval agent using LlamaIndex to extract and synthesize information from multiple research articles, and to evaluate its performance by testing it with diverse queries, analyzing its ability to deliver concise, relevant, and accurate responses.
 
-## DESIGN STEPS:
-### **Algorithm for PDF Analysis and Query Processing Using Agent Tools**
-### **1. Input Initialization**
-- **Inputs**:
-  - `urls`: A list of URLs pointing to the research papers (optional for download).
-  - `papers`: Local filenames of the PDF files.
-- **Output**:
-  - Tools for each paper (`vector_tool` and `summary_tool`).
+### PROBLEM STATEMENT:
+Accessing and synthesizing information from multiple documents is crucial for research, but manual analysis is time-consuming. A multidocument retrieval agent can automate this process by:
 
-### **2. Set Up Document Processing Tools**
-1. Import the `get_doc_tools` function for generating document-specific tools.
-2. Iterate over the `papers` list:
-   - Print the current paper being processed.
-   - For each paper, call `get_doc_tools` with:
-     - The paper file path.
-     - The stem of the file path (used as an identifier).
-   - Store the generated tools (`vector_tool` and `summary_tool`) in a dictionary, mapping to the paper.
+Parsing and indexing multiple research articles. Enabling users to ask queries in natural language. Providing synthesized, concise, and accurate responses from the indexed documents. The effectiveness of the system will be evaluated through diverse queries to test its accuracy and relevance
 
-### **3. Initialize Tools**
-1. Combine all tools from the dictionary into a single list (`initial_tools`).
+### DESIGN STEPS:
+STEP 1:
+Use LlamaIndex's document loaders to read and parse multiple research articles in PDF or text format.
 
-### **4. Set Up the LLM**
-1. Import and initialize the `OpenAI` LLM:
-   - Use the `gpt-4` model.
+STEP 2: Create a Unified Index
+Combine and index content from all documents using LlamaIndex to enable cross-document retrieval.
 
-### **5. Configure the Agent Worker**
-1. Import `FunctionCallingAgentWorker` and `AgentRunner` to manage agent functionalities.
-2. Create an agent worker using `FunctionCallingAgentWorker.from_tools`:
-   - Pass the combined `initial_tools` list.
-   - Set the LLM (`llm`).
-   - Enable verbose output for detailed logging.
+STEP 3: Set Up a Query Engine
+Configure a query engine to allow natural language questions and retrieve relevant content.
 
-### **6. Run the Agent Query**
-1. Create an `AgentRunner` instance with the configured worker.
-2. Query the agent with a question:
-   - Include specific queries about datasets and results from the `LongLoRA` paper.
+STEP 4: Implement the Retrieval Agent
+Build a retrieval agent that extracts and synthesizes information from the index.
 
-### **7. Output the Result**
-1. Retrieve and display the response from the agent.
+STEP 5: Evaluate the Agent
+Test the agent with diverse queries to evaluate the quality of its responses.
 
-## PROGRAM:
-```python
+### PROGRAM:
+```
 urls = [
     "https://openreview.net/pdf?id=VtmBAGCN7o",
     "https://openreview.net/pdf?id=6PmJoRfdaK",
@@ -71,7 +50,7 @@ for paper in papers:
 initial_tools = [t for paper in papers for t in paper_to_tools_dict[paper]]
 
 from llama_index.llms.openai import OpenAI
-llm = OpenAI(model="gpt-4")
+llm = OpenAI(model="gpt-3.5-turbo")
 
 from llama_index.core.agent import FunctionCallingAgentWorker
 from llama_index.core.agent import AgentRunner
@@ -81,18 +60,31 @@ agent_worker = FunctionCallingAgentWorker.from_tools(
     llm=llm, 
     verbose=True
 )
-
 agent = AgentRunner(agent_worker)
+
 response = agent.query(
     "Tell me about the evaluation dataset used in LongLoRA, "
     "and then tell me about the evaluation results"
 )
+
+response = agent.query("Give me a summary of both Self-RAG and LongLoRA")
+print(str(response))
+
+response = agent.query(
+    "Tell me about the evaluation dataset used "
+    "in MetaGPT and compare it against SWE-Bench"
+)
+print(str(response))
 ```
 
-## OUTPUT:
-![alt text](Output.png)
+### OUTPUT:
 
-## RESULT:
-Prompt Handling: The program constructs a query dynamically and feeds it into the LlamaIndex.
-Document Indexing: LlamaIndex efficiently indexed multiple documents (research articles) to retrieve the relevant context.
-Query Response: The system retrieved concise, relevant, and accurate responses by synthesizing the content from the indexed documents.
+![image](https://github.com/user-attachments/assets/fc8be936-3033-4aa2-89b0-907ddb8aade1)
+
+![image](https://github.com/user-attachments/assets/2f394336-aa89-4901-b8f0-43a34887925f)
+
+![image](https://github.com/user-attachments/assets/1bf62bd2-2971-46d1-b625-8e20a732a50f)
+
+
+### RESULT:
+Thus, a multidocument retrieval agent using LlamaIndex to extract and synthesize information from multiple research articles is designed and implemented successfully.
